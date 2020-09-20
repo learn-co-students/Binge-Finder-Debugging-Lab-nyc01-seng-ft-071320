@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Episode from './Components/Episode';
+import Episode from './Episode';
 
 class SelectedShowContainer extends Component {
 
@@ -18,6 +18,7 @@ class SelectedShowContainer extends Component {
   }
 
   mapEpisodes = () => {
+    console.log("this is mapepy",this.props.episodes)
     return this.props.episodes.map((e)=>{
       if (e.season == this.state.selectedSeason){
         return (<Episode eachEpisode={e} key={e.id}/>)
@@ -32,7 +33,7 @@ class SelectedShowContainer extends Component {
 
   render() {
     const { selectedShow } = this.props
-
+    console.log("this is my render in show container",this.props,"This is img",selectedShow)
     return (
       <div style={{position: "static"}}>
         <h2>{selectedShow.name}</h2>
@@ -51,7 +52,7 @@ class SelectedShowContainer extends Component {
 
 }
 
-export SelectedShowContainer;
+export default SelectedShowContainer;
 
 
 Array.prototype.unique = function() {
