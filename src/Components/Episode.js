@@ -1,7 +1,8 @@
 import React from 'react';
 
 const Episode = (props) => {
-  let { myEpisode } = props
+  let myEpisode = props.episode
+  console.log(myEpisode)
 
   return (
     <div>
