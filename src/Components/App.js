@@ -9,6 +9,8 @@ import { Grid } from 'semantic-ui-react';
 
 class App extends Component {
   state = {
+    y: 0,
+    count: 0,
     shows: [],
     searchTerm: "",
     selectedShow: "",
@@ -17,40 +19,59 @@ class App extends Component {
   }
 
   componentDidMount = () => {
-    Adapter.getShows().then(shows => this.setState({shows}))
+    Adapter.getShows(this.state.count).then(shows => this.setState({shows}))
+    document.addEventListener("scroll", (e) =>  {
+      if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
+          this.upCount() 
+        }
+      }
+    )
   }
 
   componentDidUpdate = () => {
-    window.scrollTo(0, 0)
+    window.scrollTo(0, this.state.y)
   }
 
-  handleSearch (e){
+  handleSearch = (e) => {
     this.setState({ searchTerm: e.target.value.toLowerCase() })
   }
 
   handleFilter = (e) => {
-    e.target.value === "No Filter" ? this.setState({ filterRating:"" }) : this.setState({ filterRating: e.target.value})
+    e.target.value === "No Filter" ? this.setState({ filterByRating:"" }) : this.setState({ filterByRating: e.target.value})
+  }
+
+  upCount = () => {
+      Adapter.getShows(this.state.count+1).then(shows => {
+        let newArray = this.state.shows.concat(shows)
+        this.setState(previousState => ({shows: newArray, count: (previousState.count + 1), y: window.scrollY}))
+    })
   }
 
   selectShow = (show) => {
+    console.log(show.id)
     Adapter.getShowEpisodes(show.id)
     .then((episodes) => this.setState({
       selectedShow: show,
-      episodes
+      episodes: episodes
     }))
   }
 
   displayShows = () => {
+    let shows = this.state.shows.filter((s)=> {
+      return s.name.toLowerCase().includes(this.state.searchTerm)
+    })
     if (this.state.filterByRating){
-      return this.state.shows.filter((s)=> {
+      return shows.filter((s)=> {
         return s.rating.average >= this.state.filterByRating
       })
     } else {
-      return this.state.shows
+      return shows
     }
   }
 
+
   render (){
+    console.log(this.state)
     return (
       <div>
         <Nav handleFilter={this.handleFilter} handleSearch={this.handleSearch} searchTerm={this.state.searchTerm}/>
@@ -59,7 +80,7 @@ class App extends Component {
             {!!this.state.selectedShow ? <SelectedShowContainer selectedShow={this.state.selectedShow} allEpisodes={this.state.episodes}/> : <div/>}
           </Grid.Column>
           <Grid.Column width={11}>
-            <TVShowList shows={this.displayShows()} selectShow={this.selectShow} searchTerm={this.state.searchTerm}/>
+            <TVShowList shows={this.displayShows()} selectShow={this.selectShow} searchTerm={this.state.searchTerm} />
           </Grid.Column>
         </Grid>
       </div>
